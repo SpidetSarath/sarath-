@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Room SJ</title>
+  <!-- Canvas Confetti Library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-cyan: #38bdf8;
+      --accent-green: #4ade80;
+      --accent-purple: #c084fc;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 450px;
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ASCII / Boot Screen */
+    .ascii-art {
+      font-family: monospace;
+      color: var(--accent-cyan);
+      white-space: pre;
+      font-size: 10px;
+      line-height: 1.2;
+      margin-bottom: 15px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+      color: var(--accent-cyan);
+      margin-bottom: 5px;
+    }
+
+    .hosts {
+      margin: 15px 0;
+      font-size: 1.1rem;
+      color: var(--accent-purple);
+    }
+
+    .est {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      font-style: italic;
+    }
+
+    .progress-box {
+      margin-top: 25px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 12px;
+      background: #334155;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+      transition: width 0.1s linear;
+    }
+
+    /* Buttons & Interactions */
+    .btn {
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 12px;
+      background: #334155;
+      color: var(--text-main);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn:hover {
+      background: var(--accent-cyan);
+      color: var(--bg-color);
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    /* Reaction Popup */
+    .reaction-box {
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid var(--accent-cyan);
+      padding: 15px;
+      border-radius: 12px;
+      margin: 15px 0;
+      animation: fadeIn 0.3s ease;
+    }
+
+    /* Verification Screen Photo Upload */
+    .photo-upload-label {
+      display: block;
+      border: 2px dashed var(--accent-purple);
+      padding: 15px;
+      border-radius: 12px;
+      cursor: pointer;
+      margin: 15px 0;
+      color: var(--text-sub);
+    }
+
+    .preview-img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent-green);
+      margin: 10px auto;
+      display: block;
+    }
+
+    /* Status Bar Section */
+    .status-item {
+      text-align: left;
+      margin: 12px 0;
+    }
+
+    .status-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    .status-bar-bg {
+      width: 100%;
+      height: 10px;
+      background: #334155;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .status-bar-fill {
+      height: 100%;
+      border-radius: 5px;
+      width: 0%;
+      transition: width 1s ease-in-out;
+    }
+
+    /* Rules List */
+    .rules-list {
+      text-align: left;
+      margin: 15px 0;
+    }
+
+    .rule-item {
+      padding: 8px 0;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .rule-item.allow { color: var(--accent-green); }
+    .rule-item.deny { color: #f87171; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- STEP 0: BOOT SEQUENCE -->
+    <div id="step-boot">
+      <div class="ascii-art">
+████████████████████████
+      </div>
+      <h1>WELCOME TO</h1>
+      <h1 style="color: var(--accent-purple); font-size: 2.2rem;">ROOM SJ</h1>
+      <div class="hosts">
+        Hosted by<br>
+        🎤 <strong>Sarath</strong> & 🎤 <strong>Jathin</strong>
+      </div>
+      <p class="est">Est. Since We Became Roommates</p>
+
+      <div class="progress-box">
+        <p id="boot-status" style="font-size: 0.85rem; color: var(--text-sub);">Loading...</p>
+        <div class="progress-bar">
+          <div class="progress-fill" id="boot-progress"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 1: PHOTO VERIFICATION -->
+    <div id="step-photo" class="hidden">
+      <h2>Welcome, Traveller.</h2>
+      <p style="color: var(--text-sub); margin: 10px 0; font-size: 0.9rem;">
+        Before entering, please complete the mandatory<br>
+        <strong>Vinay Sadan Visitor Verification</strong>.
+      </p>
+
+      <label class="photo-upload-label" for="photo-input">
+        📸 Upload Your Photo for AI Badge
+        <input type="file" id="photo-input" accept="image/*" style="display: none;" onchange="handlePhoto(event)">
+      </label>
+      <img id="visitor-preview" class="preview-img hidden" alt="Visitor Badge">
+
+      <button class="btn" style="background: var(--accent-green); color: #000;" onclick="startQuestions()">
+        Begin Verification →
+      </button>
+    </div>
+
+    <!-- STEP 2: QUESTION 1 -->
+    <div id="step-q1" class="hidden">
+      <p style="color: var(--accent-cyan); font-weight: bold;">Question 1</p>
+      <h3>Why are you here?</h3>
+      <div style="margin-top: 15px;">
+        <button class="btn" onclick="answerQ1('To chill')">😄 To chill</button>
+        <button class="btn" onclick="answerQ1('Timepass')">🎮 Timepass</button>
+        <button class="btn" onclick="answerQ1('Looking for food')">🍜 Looking for food</button>
+        <button class="btn" onclick="answerQ1('I don\'t know either')">🤷 I don't know either</button>
+      </div>
+
+      <div id="q1-reaction" class="reaction-box hidden">
+        <p>Fair enough.</p>
+        <p style="color: var(--text-sub); font-size: 0.85rem;">Nobody knows why they came here.</p>
+        <button class="btn" style="margin-top: 10px;" onclick="goToStep('step-q2')">Proceed →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: QUESTION 2 -->
+    <div id="step-q2" class="hidden">
+      <p style="color: var(--accent-cyan); font-weight: bold;">Question 2</p>
+      <h3>Have you ever randomly entered this room without knocking?</h3>
+      <div style="margin-top: 15px;">
+        <button class="btn" onclick="answerQ2()">YES</button>
+        <button class="btn" onclick="answerQ2()">YES, MANY TIMES</button>
+      </div>
+
+      <div id="q2-reaction" class="reaction-box hidden">
+        <p style="font-size: 2rem;">😂</p>
+        <p>We thought so!</p>
+        <button class="btn" style="margin-top: 10px;" onclick="goToStep('step-q3')">Proceed →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: QUESTION 3 -->
+    <div id="step-q3" class="hidden">
+      <p style="color: var(--accent-cyan); font-weight: bold;">Question 3</p>
+      <h3>Can you survive one full concert?</h3>
+      <div style="margin-top: 15px;">
+        <button class="btn" onclick="answerQ3()">🎤 Yes</button>
+        <button class="btn" onclick="answerQ3()">🎤 I'll sing too</button>
+        <button class="btn" onclick="answerQ3()">🎤 I'm the backup singer</button>
+      </div>
+
+      <div id="q3-reaction" class="reaction-box hidden">
+        <p>Excellent.</p>
+        <p style="color: var(--accent-green); font-weight: bold;">Audience accepted.</p>
+        <button class="btn" style="margin-top: 10px;" onclick="goToStep('step-status')">Check Room Status →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: ROOM STATUS -->
+    <div id="step-status" class="hidden">
+      <p style="color: var(--accent-cyan); font-weight: bold;">Question 4</p>
+      <h3>Current Room Status</h3>
+      
+      <div style="margin: 20px 0;">
+        <div class="status-item">
+          <div class="status-label"><span>🎵 Music</span><span>80%</span></div>
+          <div class="status-bar-bg"><div class="status-bar-fill" id="bar-music" style="background: var(--accent-purple);"></div></div>
+        </div>
+        <div class="status-item">
+          <div class="status-label"><span>😂 Laughing</span><span>100%</span></div>
+          <div class="status-bar-bg"><div class="status-bar-fill" id="bar-laugh" style="background: var(--accent-cyan);"></div></div>
+        </div>
+        <div class="status-item">
+          <div class="status-label"><span>📚 Studying</span><span>5%</span></div>
+          <div class="status-bar-bg"><div class="status-bar-fill" id="bar-study" style="background: #f87171;"></div></div>
+        </div>
+        <div class="status-item">
+          <div class="status-label"><span>😴 Sleeping</span><span>40%</span></div>
+          <div class="status-bar-bg"><div class="status-bar-fill" id="bar-sleep" style="background: var(--accent-green);"></div></div>
+        </div>
+      </div>
+
+      <button class="btn" style="background: var(--accent-green); color: #000;" onclick="grantAccess()">
+        Finalize Access 🔓
+      </button>
+    </div>
+
+    <!-- FINAL SCREEN -->
+    <div id="step-final" class="hidden">
+      <div id="final-badge" class="hidden">
+        <img id="final-photo" class="preview-img" alt="Visitor">
+      </div>
+
+      <h2 style="color: var(--accent-green); letter-spacing: 2px; margin-bottom: 5px;">ACCESS GRANTED</h2>
+      <p style="font-size: 0.9rem; color: var(--text-sub);">Welcome to</p>
+      <h1 style="color: var(--accent-cyan); margin-bottom: 15px;">SARATH & JATHIN'S ROOM</h1>
+
+      <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
+
+      <h3>House Rules</h3>
+      <div class="rules-list">
+        <div class="rule-item allow"><span>✔</span> Laugh loudly</div>
+        <div class="rule-item allow"><span>✔</span> Join the concert</div>
+        <div class="rule-item allow"><span>✔</span> Sit anywhere</div>
+        <div class="rule-item allow"><span>✔</span> Knock if we're sleeping</div>
+        <div class="rule-item deny"><span>❌</span> Judge the room</div>
+        <div class="rule-item deny"><span>❌</span> Leave without saying bye</div>
+      </div>
+
+      <button class="btn" style="margin-top: 15px; background: var(--accent-purple); color: #fff;" onclick="playSong()">
+        🎤 "Welcome to Room SJ"
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    // Audio Synthesizer (No external MP3 files required!)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playBeep(freq = 440, duration = 0.1) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function playSuccessSound() {
+      playBeep(523.25, 0.1);
+      setTimeout(() => playBeep(659.25, 0.1), 100);
+      setTimeout(() => playBeep(783.99, 0.2), 200);
+    }
+
+    // Navigation logic
+    function goToStep(stepId) {
+      playBeep(600, 0.05);
+      document.querySelectorAll('.container > div').forEach(el => el.classList.add('hidden'));
+      document.getElementById(stepId).classList.remove('hidden');
+
+      // Trigger status bars animation when on status screen
+      if(stepId === 'step-status') {
+        setTimeout(() => {
+          document.getElementById('bar-music').style.width = '80%';
+          document.getElementById('bar-laugh').style.width = '100%';
+          document.getElementById('bar-study').style.width = '5%';
+          document.getElementById('bar-sleep').style.width = '40%';
+        }, 100);
+      }
+    }
+
+    // Boot Sequence Animation
+    window.addEventListener('load', () => {
+      let progress = 0;
+      const fill = document.getElementById('boot-progress');
+      const status = document.getElementById('boot-status');
+      
+      const interval = setInterval(() => {
+        progress += 2;
+        fill.style.width = progress + '%';
+        
+        if(progress === 40) status.innerText = "Checking Visitor Credentials...";
+        if(progress === 80) status.innerText = "Bypassing Security...";
+        
+        if(progress >= 100) {
+          clearInterval(interval);
+          playBeep(800, 0.15);
+          goToStep('step-photo');
+        }
+      }, 50);
+    });
+
+    // Image Upload Handling
+    let uploadedImage = null;
+    function handlePhoto(e) {
+      const file = e.target.files[0];
+      if(file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          uploadedImage = event.target.result;
+          const preview = document.getElementById('visitor-preview');
+          preview.src = uploadedImage;
+          preview.classList.remove('hidden');
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function startQuestions() {
+      goToStep('step-q1');
+    }
+
+    // Question Button Handlers
+    function answerQ1(ans) {
+      playBeep(500, 0.08);
+      document.getElementById('q1-reaction').classList.remove('hidden');
+    }
+
+    function answerQ2() {
+      playBeep(500, 0.08);
+      document.getElementById('q2-reaction').classList.remove('hidden');
+    }
+
+    function answerQ3() {
+      playBeep(500, 0.08);
+      document.getElementById('q3-reaction').classList.remove('hidden');
+    }
+
+    // Final Access Flow
+    function grantAccess() {
+      playSuccessSound();
+      
+      // Confetti burst
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+
+      if(uploadedImage) {
+        document.getElementById('final-photo').src = uploadedImage;
+        document.getElementById('final-badge').classList.remove('hidden');
+      }
+
+      goToStep('step-final');
+    }
+
+    // Synthesized welcome tune
+    function playSong() {
+      const notes = [261.63, 329.63, 392.00, 523.25, 392.00, 523.25];
+      notes.forEach((freq, idx) => {
+        setTimeout(() => playBeep(freq, 0.2), idx * 250);
+      });
+    }
+  </script>
+</body>
+</html>
